@@ -3,7 +3,6 @@ package com.tictactoy;
 import com.tictactoy.game.MineSweeper;
 import com.tictactoy.game.TicTacToy;
 
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class ApplicationLauncher {
@@ -24,6 +23,8 @@ public class ApplicationLauncher {
         if (gameName.contains(MINE_SWEEPER)) {
             MineSweeper.play();
         }
+
+        scanner.close();
     }
 
 }
