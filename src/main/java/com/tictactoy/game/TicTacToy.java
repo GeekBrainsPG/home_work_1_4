@@ -111,9 +111,24 @@ public class TicTacToy {
         Random random = new Random();
         int x, y;
 
+        TicTacDot diagonalTicTacDot = getDiagonalPrediction(map, matrixSize - 1);
+        TicTacDot horizontalTicTacDot = getHorizontalPrediction(map, matrixSize - 1);
+        TicTacDot verticalTicTacDot = getVerticalPrediction(map, matrixSize - 1);
+        System.out.println(diagonalTicTacDot + " " + horizontalTicTacDot + " " + verticalTicTacDot);
         do {
-            x = random.nextInt(matrixSize);
-            y = random.nextInt(matrixSize);
+            if (diagonalTicTacDot != null) {
+                x = diagonalTicTacDot.getX();
+                y = diagonalTicTacDot.getY();
+            } else if (horizontalTicTacDot != null) {
+                x = horizontalTicTacDot.getX();
+                y = horizontalTicTacDot.getY();
+            } else if (verticalTicTacDot != null) {
+                x = verticalTicTacDot.getX();
+                y = verticalTicTacDot.getY();
+            } else {
+                x = random.nextInt(matrixSize);
+                y = random.nextInt(matrixSize);
+            }
         } while (!isCellValid(map, x, y));
 
         System.out.printf("Компьютер походил в точку %d %d", (x + 1), (y + 1));
@@ -191,6 +206,113 @@ public class TicTacToy {
         }
 
         return false;
+    }
+
+    private static TicTacDot getDiagonalPrediction(char[][] map, int predictionAccuracy) {
+        TicTacDot[] firstDiagonalAvailableDot = new TicTacDot[matrixSize];
+        TicTacDot[] secondDiagonalAvailableDot = new TicTacDot[matrixSize];
+        int firstDiagonalMarkCounter = 0;
+        int secondDiagonalMarkCounter = 0;
+        int firstDiagonalAvailableDotCounter = 0;
+        int secondDiagonalAvailableDotCounter = 0;
+        boolean isFirstDiagonalAvailable = true;
+        boolean isSecondDiagonalAvailable = true;
+
+        for (int i = 0; i < matrixSize; i++) {
+            if (map[i][i] == DOT_X && isFirstDiagonalAvailable) {
+                firstDiagonalMarkCounter++;
+            } else if (map[i][i] == DOT_O) {
+                isFirstDiagonalAvailable = false;
+            } else if (isFirstDiagonalAvailable) {
+                firstDiagonalAvailableDot[firstDiagonalAvailableDotCounter] = new TicTacDot(i, i);
+                firstDiagonalAvailableDotCounter++;
+            }
+
+            if (map[(matrixSize - 1) - i][i] == DOT_X && isSecondDiagonalAvailable) {
+                secondDiagonalMarkCounter++;
+            } else if (map[(matrixSize - 1) - i][i] == DOT_O) {
+                isSecondDiagonalAvailable = false;
+            } else if (isSecondDiagonalAvailable) {
+                secondDiagonalAvailableDot[secondDiagonalAvailableDotCounter] = new TicTacDot(i, (matrixSize - 1) - i);
+                secondDiagonalAvailableDotCounter++;
+            }
+        }
+
+        if (isFirstDiagonalAvailable && predictionAccuracy <= firstDiagonalMarkCounter) {
+            return firstDiagonalAvailableDot[0];
+        }
+
+        if (isSecondDiagonalAvailable && predictionAccuracy <= secondDiagonalMarkCounter) {
+            return secondDiagonalAvailableDot[0];
+        }
+
+        return null;
+    }
+
+    private static TicTacDot getHorizontalPrediction(char[][] map, int predictionAccuracy) {
+        int maxRowMarkedCounter = 0;
+        TicTacDot[] horizontalAvailableDot = new TicTacDot[matrixSize];
+
+        for (int i = 0; i < matrixSize; i++) {
+            int maxRowAvailableCounter = 0;
+            int tempMaxRowMarkedCounter = 0;
+            TicTacDot[] tempHorizontalAvailableDot = new TicTacDot[matrixSize];
+
+            for (int j = 0; j < matrixSize; j++) {
+                if (map[i][j] == DOT_X) {
+                    tempMaxRowMarkedCounter++;
+                  } else if (map[i][j] == DOT_O) {
+                    break;
+                } else {
+                    tempHorizontalAvailableDot[maxRowAvailableCounter] = new TicTacDot(j, i);
+                    maxRowAvailableCounter++;
+                }
+            }
+
+            if (tempMaxRowMarkedCounter > maxRowMarkedCounter) {
+                maxRowMarkedCounter = tempMaxRowMarkedCounter;
+                horizontalAvailableDot = tempHorizontalAvailableDot;
+            }
+        }
+
+        if (predictionAccuracy <= maxRowMarkedCounter) {
+            return horizontalAvailableDot[0];
+        }
+
+        return null;
+    }
+
+    private static TicTacDot getVerticalPrediction(char[][] map, int predictionAccuracy) {
+        int maxColumnMarkedCounter = 0;
+        TicTacDot[] verticalAvailableDot = new TicTacDot[matrixSize];
+
+        for (int i = 0; i < matrixSize; i++) {
+            int maxColumnAvailableCounter = 0;
+            int tempMaxColumnMarkedCounter = 0;
+            TicTacDot[] tempVerticalAvailableDot = new TicTacDot[matrixSize];
+
+            for (int j = 0; j < matrixSize; j++) {
+                if (map[j][i] == DOT_X) {
+                    maxColumnMarkedCounter++;
+                } else if (map[j][i] == DOT_O) {
+                    break;
+                } else {
+                    verticalAvailableDot[maxColumnAvailableCounter] = new TicTacDot(i, j);
+                    maxColumnAvailableCounter++;
+                }
+            }
+
+            if (tempMaxColumnMarkedCounter > maxColumnMarkedCounter) {
+                maxColumnMarkedCounter = tempMaxColumnMarkedCounter;
+                verticalAvailableDot = tempVerticalAvailableDot;
+            }
+        }
+
+        if (predictionAccuracy <= maxColumnMarkedCounter) {
+            return verticalAvailableDot[0];
+        }
+
+        return null;
     }
 
 }
